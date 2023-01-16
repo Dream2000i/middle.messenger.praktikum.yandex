@@ -1,10 +1,11 @@
-import templateFunction from './templates/app.hbs';
+import templateApp from './app.hbs';
 
-import './templates/app.scss';
-import link from './templates/ui/link/link.js';
+import './app.scss';
+import link from './components/link/link.js';
 
 let links = [
     '<h1>Список страниц:</h1>',
+    '<nav class="app__nav">',
     link({
         href: "/auth.html",
         label: "Авторизация"
@@ -29,8 +30,8 @@ let links = [
         href: "/500.html",
         label: "500"
     }),
+    '</nav>'
 ];
 
 
-document.body.innerHTML = templateFunction({ page: `<div class="page__index">${links.join('<br>')}</div>` });
-
+document.body.innerHTML = templateApp({ page: `<div class="page__index">${links.join('')}</div>` });

@@ -6,7 +6,6 @@ https://www.figma.com/community/file/1196454541938995616
 
 https://celadon-meerkat-82a83d.netlify.app/
 
-
 ## Описание
 
 Проект предсталяет собой практическую работу выполняемую в процессе обучения на курсе 
@@ -54,4 +53,3 @@ npm run build
 ```bash
 npm run dev
 ```
-
