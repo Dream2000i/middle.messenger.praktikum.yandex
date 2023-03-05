@@ -10,7 +10,7 @@ export default class List extends Block {
         // eslint-disable-next-line no-undef
         const fragment = document.createElement('template');
         const { items = [], attr = {} } = this.props;
-        const className = attr.class ?? '';
+        const className = attr.class ?? 'list';
         if (!items) return fragment.content;
         items.forEach((item: Record<string, unknown>) => {
             fragment.innerHTML += `<li class='${className}__li'>${item}</li>`;

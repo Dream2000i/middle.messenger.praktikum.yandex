@@ -1,23 +1,18 @@
 const weekDay: Array<string> = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
 
+const dateZeroAdd = (date: number | string): string => {
+    const string = String(date);
+    if (string.length < 2) return `0${string}`;
+    return string;
+};
 
-type TlastMessage = {
-    date: string,
-    media: string,
-    new: boolean,
-    read: boolean,
-    text: string,
-    time: string,
-    type: string,
-}
-
-
-export const getDateLastMessage = (obj: TlastMessage): string => {
-    const date = formattedDate(obj.date, obj.time);
+export const getDateLastMessage = (obj: string): string => {
+    if (!obj) return '';
+    const date = new Date(obj);
     const currentDate = new Date();
-    if (currentDate.setHours(0, 0, 0, 0) === date.setHours(0, 0, 0, 0)) return obj.time;
+    if (currentDate.setHours(0, 0, 0, 0) === new Date(date).setHours(0, 0, 0, 0)) return `${dateZeroAdd(date.getHours())}:${dateZeroAdd(date.getMinutes())}`;
     if ((getWeekNumber(date) === getWeekNumber(currentDate)) && (date.getFullYear() === currentDate.getFullYear())) return weekDay[date.getDay()];
-    return obj.date;
+    return `${dateZeroAdd(date.getDate())}.${dateZeroAdd(date.getMonth() + 1)}.${date.getFullYear()}`;
 };
 
 
@@ -51,4 +46,13 @@ function getWeekNumber(d: Date) {
     const yearStart: Date | any = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
     const weekNo = Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
     return weekNo;
+}
+
+
+export function getParseDate(dateString: string | number): { date: string, time: string } {
+    const date = new Date(dateString);
+    const obj = { date: '00.00.0000', time: '00:00' };
+    obj.date = `${dateZeroAdd(date.getDate())}.${dateZeroAdd(date.getMonth() + 1)}.${date.getFullYear()}`;
+    obj.time = `${dateZeroAdd(date.getHours())}:${dateZeroAdd(date.getMinutes())}`;
+    return obj;
 }

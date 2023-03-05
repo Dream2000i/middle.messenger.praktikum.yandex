@@ -2,6 +2,7 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { v4 } from 'uuid';
 import EventBus from './EventBus';
+import { State } from './Store';
 
 export interface TProps {
     [index: string]: any,
@@ -16,6 +17,10 @@ export default class Block {
         FLOW_RENDER: 'flow:render',
     };
 
+    static getStateToProps(state: State): TProps {
+        return { ...state };
+    }
+
     public props: TProps;
 
     // eslint-disable-next-line class-methods-use-this
@@ -23,13 +28,11 @@ export default class Block {
 
     public events: Record<string, Function> | any;
 
-    private _prevProps: TProps;
+    public _prevProps: TProps;
 
     public children: TProps;
 
-    private _id: string | null = null;
-
-    private _reRender: boolean;
+    public _id: string | null = null;
 
     public eventBus: () => EventBus;
 
@@ -53,8 +56,6 @@ export default class Block {
         this.templator = templator;
 
         this._id = v4();
-
-        this._reRender = false;
 
         this.props = this._makePropsProxy({ ...propsSimple, _id: this._id });
 
@@ -122,6 +123,7 @@ export default class Block {
 
     private _render(): void {
         const block = this.render();
+
         this._element.innerHTML = '';
 
         if (typeof block === 'string') {
@@ -129,6 +131,7 @@ export default class Block {
         } else {
             this._element.append(block);
         }
+
         this._removeEvents();
         this._addEvents();
         this._addAttribute();
@@ -146,6 +149,7 @@ export default class Block {
 
     private _makePropsProxy(props: TProps) {
         const self = this;
+
         return new Proxy(props, {
             get(target: TProps, prop: string) {
                 const value: unknown = target[prop];
@@ -216,6 +220,7 @@ export default class Block {
     } {
         const children: Record<string, Block> = {};
         const props: Record<string, unknown> = {};
+
         Object.entries(propsAndChildren).forEach(([key, value]) => {
             if (value instanceof Block) {
                 children[key] = value;

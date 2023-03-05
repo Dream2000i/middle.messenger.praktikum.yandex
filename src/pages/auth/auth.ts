@@ -1,4 +1,4 @@
-import Block, { TProps } from '../../classes/Block';
+import Block from '../../classes/Block';
 import Form from '../../components/form/form';
 import Input from '../../components/input/input';
 import Button from '../../components/button/button';
@@ -11,13 +11,36 @@ import {
     onSubmit,
     PASSWORD_REGEX,
 } from '../../utils/validation';
-import '../../assets/style/app.scss';
 import './auth.scss';
+import AuthController from '../../controlles/AuthController';
+import { connect } from '../../utils/store';
+import { State } from '../../classes/Store';
 
-export default class AuthPage extends Block {
-    constructor(props: TProps, templator: Function) {
-        super('main', props, templator);
+class AuthPage extends Block {
+    constructor() {
+        const props = {
+            attr: {
+                class: 'app__auth-page',
+            },
+            form: pageForm,
+        };
+        super('main', props, templateAuth);
     }
+
+
+    static getStateToProps(state: State) {
+        let props = {
+        };
+        if (state?.chats) {
+            props = {
+                attr: {
+                    class: `app__auth-page ${state?.isLoading ? 'loading' : ''} ${state.currentChat?.isLoadingOldMsg ? 'loadingOldMsg' : ''}`,
+                },
+            };
+        }
+        return props;
+    }
+
 
     render() {
         return this.compile(this.props);
@@ -35,6 +58,7 @@ const pageForm = new Form({
         focusout: onBlur,
         submit: onSubmit,
     },
+    controller: AuthController.login.bind(AuthController),
     items: [
         new Input({
             attr: {
@@ -83,23 +107,13 @@ const pageForm = new Form({
             text: 'Ещё не зарегистрированы?',
             attr: {
                 class: 'link',
-                href: '/reg.html',
+                href: '/sign-up',
             },
+            spa: true,
         }),
     ],
 
 });
 
-const authPage = new AuthPage({
-    attr: {
-        class: 'app__auth-page',
-    },
-    form: pageForm,
-}, templateAuth);
 
-// eslint-disable-next-line no-undef
-const root = document.getElementById('app');
-if (root) {
-    root.innerHTML = '';
-    root.append(authPage.getContent());
-}
+export default connect(AuthPage);

@@ -1,3 +1,5 @@
+/* eslint-disable no-alert */
+/* eslint-disable no-restricted-globals */
 /* eslint-disable no-plusplus */
 /* eslint-disable no-return-assign */
 /* eslint-disable no-param-reassign */
@@ -7,28 +9,27 @@ import Input from '../../components/input/input';
 import Link from '../../components/link/link';
 import Form from '../../components/form/form';
 import Button from '../../components/button/button';
-import { formattedDate } from '../../utils/date';
 import DialogsList from '../../components/dialogsList/dialogsList';
 import DialogActive from '../../components/dialog/dialogActive';
-import { exampleChatData } from '../../../static/exampleData.json';
-import avatarDefault from '../../assets/icon/avatar_default.png';
 import templateChat from './chat.hbs';
 import '../../assets/style/app.scss';
 import './chat.scss';
-import { onSubmit } from '../../utils/validation';
+import SearchUsers from '../../components/searchUsers/searchUsers';
+import UsersController from '../../controlles/UsersController';
+import ChatsController from '../../controlles/ChatsController';
+import MessageController from '../../controlles/MessageController';
 
+const { addNewChatUser, createChat } = ChatsController;
+const { searchUsers } = UsersController;
+const { sendMessage, getMessage } = MessageController;
 
-export type TMessage = {
-    date: string,
-    media: string,
-    new: boolean,
-    read: boolean,
-    text: string,
-    time: string,
-    type: string,
-};
+export type TMessage = Record<string, string | number | null>;
+
 
 export type TDialog = {
+    last_message: any;
+    title: any;
+    unread_count: number;
     avatar: string,
     dialog: Array<TMessage>,
     id: string,
@@ -38,94 +39,42 @@ export type TDialog = {
 }
 
 
-export default class ChatPage extends Block {
+class ChatPage extends Block {
     activeDialog: TDialog | undefined;
 
-    constructor(props: TProps, templator: Function) {
-        super('main', props, templator);
-    }
-
-    static changeActiveDialog(self: ChatPage, e: Event): void {
-        const target = e?.target as HTMLElement;
-        const item = target.closest('.dialogs__item') as HTMLElement;
-        if (!item) return;
-        const active = item.dataset.dialogId ?? undefined;
-        const dialog = self.searchActiveDialog(active);
-
-        if (!active || !dialog) return;
-        self.children.listDialog.setProps({
-            active,
-        });
-        self.children.activeDialog.setProps({
-            ...dialog,
-            messages: '',
-            avatar: dialog.avatar ? dialog.avatar : avatarDefault,
-        });
-    }
-
-    static sortedDialogs(dialogs: Array<TDialog> = []): Array<TDialog> | [] {
-        const sortedDialogs = [...dialogs] ?? [];
-        if (!sortedDialogs) return [];
-        sortedDialogs.forEach((item) => {
-            item.dialog.sort((msg1, msg2) => (formattedDate(msg1.date, msg1.time).getTime() > formattedDate(msg2.date, msg2.time).getTime() ? 1 : -1));
-            item.newMsg = 0;
-            item.dialog.forEach((msg) => (msg.new ? item.newMsg++ : 0));
-            item.lastMsg = item.dialog[item.dialog.length - 1];
-        });
-        sortedDialogs.sort((dialog1, dialog2) => (formattedDate(dialog1.lastMsg.date, dialog1.lastMsg.time).getTime() < formattedDate(dialog2.lastMsg.date, dialog2.lastMsg.time).getTime() ? 1 : -1));
-        return sortedDialogs;
-    }
-
-
-    // eslint-disable-next-line class-methods-use-this
-    searchActiveDialog(active: string | undefined): TDialog | undefined {
-        for (let i = 0; i < exampleChatData.length; i++) {
-            const item = exampleChatData[i];
-            if (item.id === active) {
-                return item;
-            }
-        }
-        return undefined;
-    }
-
-    static createNewMsgForm(): Form {
-        return new Form({
+    constructor() {
+        const props = {
             attr: {
-                class: 'new-msg-send-form form',
+                class: 'app__chat-page',
             },
-            items: [
-                new Input({
-                    type: 'file',
-                    name: 'inc',
-                    attr: {
-                        class: 'control-inc btn inc',
-                    },
-                    validation: {
-                        required: false,
-                    },
-                }),
-                new Input({
-                    attr: {
-                        class: 'control-input',
-                    },
-                    validation: {
-                        required: true,
-                        minlength: 1,
-                    },
-                    name: 'messagе',
-                    placeholder: 'Сообщение',
-                }),
-            ],
-            buttons: [new Button({
-                attr: {
-                    class: 'control-input btn arrownext',
-                    type: 'control-submit',
-                },
-            })],
+            activeDialog,
+            listDialog: new DialogsList(),
+            profileLink,
+            newChatBtn,
+            searchDialog,
             events: {
-                submit: onSubmit,
+                click: (_self: Block, e: Event) => {
+                    const target = e?.target as HTMLElement;
+                    const item = target.closest('.dialogs__item') as HTMLElement;
+                    if (!item) return;
+                    const active = item.dataset.dialogId ?? undefined;
+                    MessageController.changeCurrentChat(active);
+                },
             },
-        });
+        };
+        super('main', props, templateChat);
+        ChatsController.getChats();
+        setInterval(ChatsController.getChats, 20000);
+    }
+
+
+    public componentDidUpdate(_oldProps: TProps, _newProps: TProps): boolean {
+        if (_newProps.activeDialog !== _oldProps.activeDialog) {
+            this.children.listDialog.setProps({
+                activeDialog: _newProps.activeDialog,
+            });
+        }
+        return true;
     }
 
     render() {
@@ -134,58 +83,96 @@ export default class ChatPage extends Block {
 }
 
 
-const searchDialog = new Input({
+const searchDialog = new SearchUsers({
     attr: {
-        class: 'search form__input',
+        class: 'search-block',
     },
-    placeholder: 'Поиск',
-    label: '<i class="fa fa-search"></i>',
-    type: 'search',
+    items: null,
+    events: {
+        change: searchUsers,
+        click: addNewChatUser.bind(ChatsController),
+    },
 });
 
 const profileLink = new Link({
     attr: {
-        href: '/profile.html',
+        href: '/settings',
         class: 'link',
     },
+    spa: true,
     text: 'Профиль >',
 });
 
-const dialogsList = new DialogsList({
+
+const newChatBtn = new Button({
     attr: {
-        class: 'dialogs',
+        class: 'btn',
     },
-    dialogs: ChatPage.sortedDialogs(exampleChatData),
+    text: 'Создать новый чат',
+    events: {
+        click: () => {
+            createChat.bind(ChatsController)(prompt('Введите название чата'));
+        },
+    },
 });
 
-const activeDialogTest = new DialogActive({
+export const activeDialog = new DialogActive({
     attr: {
         class: 'current-dialog',
     },
-    newMsgForm: ChatPage.createNewMsgForm(),
-    btn: new Button({
+    newMsgForm: new Form({
         attr: {
-            class: 'btn ellipsis',
+            class: 'new-msg-send-form form',
+        },
+        controller: sendMessage.bind(MessageController),
+        items: [
+
+            new Input({
+                attr: {
+                    class: 'control-input',
+                },
+                validation: {
+                    required: true,
+                    minlength: 1,
+                },
+                name: 'messagе',
+                placeholder: 'Сообщение',
+            }),
+        ],
+        buttons: [new Button({
+            attr: {
+                class: 'control-input btn arrownext',
+                type: 'control-submit',
+            },
+        })],
+        events: {
+            submit: (self: Form, e: Event) => {
+                e.preventDefault();
+                self.getFormData();
+                self.resetForm();
+                self.getContent().focus();
+            },
         },
     }),
+    btn: new Button({
+        attr: {
+            class: 'btn delete',
+        },
+        events: {
+            click: () => {
+                if (!confirm('Вы точно хотите удалить текущий чат?')) return;
+                ChatsController.deleteChats.bind(ChatsController)();
+            },
+        },
+    }),
+    messages: [],
+    events: {
+        scroll: (_self: Block, e: Event) => {
+            const elem = e?.target as HTMLElement;
+            if (elem.scrollTop) return;
+            getMessage.bind(MessageController)();
+        },
+    },
 });
 
-
-const chatPage = new ChatPage({
-    attr: {
-        class: 'app__chat-page',
-    },
-    activeDialog: activeDialogTest,
-    listDialog: dialogsList,
-    profileLink,
-    searchDialog,
-    events: {
-        click: ChatPage.changeActiveDialog,
-    },
-}, templateChat);
-
-const root = document.getElementById('app');
-if (root) {
-    root.innerHTML = '';
-    root.append(chatPage.getContent());
-}
+export default ChatPage;

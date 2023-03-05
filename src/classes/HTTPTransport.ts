@@ -5,10 +5,11 @@ const METHODS = {
     DELETE: 'DELETE',
 };
 
-type TOptionsData = Record<string, string | number>
+export type TOptionsData = Record<string, string | number | Array<string | number>>;
 type TOptions = {
     headers?: Record<string, string>,
-    data?: TOptionsData,
+    // eslint-disable-next-line no-undef
+    data?: TOptionsData | FormData,
     method?: string,
     timeout?: number
 }
@@ -17,26 +18,34 @@ type HTTPRequest = (url: string, options?: TOptions, timeout?: number) => Promis
 
 // Самая простая версия. Реализовать штучку со всеми проверками им предстоит в конце спринта
 // Необязательный метод
-function queryStringify(data: TOptionsData): string {
+// eslint-disable-next-line no-undef
+function queryStringify(data: TOptionsData | FormData): string {
+    // eslint-disable-next-line no-undef
+    if (data instanceof FormData) return '';
     if (typeof data !== 'object') {
         throw new Error('Data must be object');
     }
-
-    // Здесь достаточно и [object Object] для объекта
     const keys = Object.keys(data);
     return keys.reduce((result, key, index) => `${result}${key}=${data[key]}${index < keys.length - 1 ? '&' : ''}`, '?');
 }
 
 export default class HTTPTransport {
-    static get: HTTPMethod = (url = '', options = {}) => this.request(url, { ...options, method: METHODS.GET }, options.timeout);
+    baseUrl: string = '';
 
-    static post: HTTPMethod = (url = '', options = {}) => this.request(url, { ...options, method: METHODS.POST }, options.timeout);
+    constructor(baseUrl: string) {
+        this.baseUrl = baseUrl;
+    }
 
-    static put: HTTPMethod = (url = '', options = {}) => this.request(url, { ...options, method: METHODS.PUT }, options.timeout);
+    public get: HTTPMethod = (url = '', options = {}) => this.request(this.baseUrl + url, { ...options, method: METHODS.GET }, options.timeout);
 
-    static delete: HTTPMethod = (url = '', options = {}) => this.request(url, { ...options, method: METHODS.DELETE }, options.timeout);
+    public post: HTTPMethod = (url = '', options = {}) => this.request(this.baseUrl + url, { ...options, method: METHODS.POST }, options.timeout);
 
-    static request: HTTPRequest = (url = '', options = {}, timeout = 5000): Promise<unknown | void> => {
+    public put: HTTPMethod = (url = '', options = {}) => this.request(this.baseUrl + url, { ...options, method: METHODS.PUT }, options.timeout);
+
+    public delete: HTTPMethod = (url = '', options = {}) => this.request(this.baseUrl + url, { ...options, method: METHODS.DELETE }, options.timeout);
+
+    // eslint-disable-next-line class-methods-use-this
+    public request: HTTPRequest = (url = '', options = {}, timeout = 5000): Promise<unknown | void> => {
         const { headers = {}, method, data } = options;
 
         return new Promise((resolve, reject) => {
@@ -56,6 +65,7 @@ export default class HTTPTransport {
                     ? `${url}${queryStringify(data)}`
                     : url,
             );
+            xhr.withCredentials = true;
             Object.keys(headers).forEach((key) => {
                 xhr.setRequestHeader(key, headers[key]);
             });
@@ -74,7 +84,9 @@ export default class HTTPTransport {
             if (isGet || !data) {
                 xhr.send();
             } else {
-                xhr.send(JSON.stringify(data));
+                // eslint-disable-next-line no-undef
+                const sendData = data instanceof FormData ? data : JSON.stringify(data);
+                xhr.send(sendData);
             }
         });
     };

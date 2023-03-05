@@ -54,19 +54,27 @@ export default class Input extends Block {
         self.currentValue = target.value;
     }
 
+    elementReser(): void {
+        // eslint-disable-next-line no-undef
+        const element = this.getContent().querySelector('input') as HTMLInputElement | null;
+        if (!element) return;
+        element.value = '';
+        this.currentValue = '';
+    }
+
     _addEvents(): void {
         this.events.setCurrentValue = this.setCurrentValue.bind('', this);
-        this._element.addEventListener('input', this.events.setCurrentValue);
+        this.getContent().addEventListener('input', this.events.setCurrentValue);
         super._addEvents();
     }
 
     _removeEvents(): void {
-        this._element.removeEventListener('input', this.events.setCurrentValue);
+        this.getContent().removeEventListener('input', this.events.setCurrentValue);
         super._removeEvents();
     }
 
     errorUpdate(): void {
-        const errorBlock = this._element.querySelector('.error') ?? '';
+        const errorBlock = this.getContent().querySelector('.error') ?? '';
         if (!errorBlock) return;
         errorBlock.textContent = this.props.error;
     }

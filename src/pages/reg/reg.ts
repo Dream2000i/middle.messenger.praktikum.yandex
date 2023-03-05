@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import Block, { TProps } from '../../classes/Block';
+import Block from '../../classes/Block';
 import Input from '../../components/input/input';
 import Link from '../../components/link/link';
 import Button from '../../components/button/button';
@@ -15,19 +15,28 @@ import {
     PHONE_REGEX,
     PASSWORD_REGEX,
 } from '../../utils/validation';
+import { connect } from '../../utils/store';
+import AuthController from '../../controlles/AuthController';
 import templateReg from './reg.hbs';
-import '../../assets/style/app.scss';
 import './reg.scss';
 
-export default class RegPage extends Block {
-    constructor(props: TProps, templator: Function) {
-        super('main', props, templator);
+class RegPage extends Block {
+    constructor() {
+        const props = {
+            attr: {
+                class: 'app__reg-page',
+            },
+            form: pageForm,
+        };
+        super('main', props, templateReg);
     }
 
     render() {
         return this.compile(this.props);
     }
 }
+
+export default connect(RegPage);
 
 const inputDefaultProps = {
     attr: {
@@ -43,6 +52,7 @@ const pageForm = new Form({
         class: 'app__form form',
         action: '',
     },
+    controller: AuthController.createUser.bind(AuthController),
     events: {
         focusin: onFocus,
         focusout: onBlur,
@@ -54,6 +64,7 @@ const pageForm = new Form({
             name: 'email',
             label: 'Почта',
             placeholder: 'Почта',
+            value: 'asdas@yandex.ru',
             required: true,
             validation: {
                 required: true,
@@ -66,6 +77,7 @@ const pageForm = new Form({
             name: 'login',
             label: 'Логин',
             placeholder: 'Логин',
+            value: 'dream',
             required: true,
             validation: {
                 required: true,
@@ -80,6 +92,7 @@ const pageForm = new Form({
             name: 'first_name',
             label: 'Имя',
             placeholder: 'Имя',
+            value: 'Pa',
             required: true,
             validation: {
                 required: true,
@@ -92,6 +105,7 @@ const pageForm = new Form({
             name: 'second_name',
             label: 'Фамилия',
             placeholder: 'Фамилия',
+            value: 'Pa',
             required: true,
             validation: {
                 required: true,
@@ -106,6 +120,7 @@ const pageForm = new Form({
             placeholder: 'Телефон',
             // type: 'number',
             required: true,
+            value: '+79991234567',
             validation: {
                 required: true,
                 mask: PHONE_REGEX,
@@ -120,6 +135,7 @@ const pageForm = new Form({
             label: 'Пароль',
             placeholder: 'Пароль',
             required: true,
+            value: '1234567A',
             type: 'password',
             validation: {
                 required: true,
@@ -136,6 +152,7 @@ const pageForm = new Form({
             name: 'confirm_password',
             label: 'Повторите пароль',
             placeholder: 'Повторите пароль',
+            value: '1234567A',
             required: true,
             type: 'password',
             validation: {
@@ -158,22 +175,10 @@ const pageForm = new Form({
             text: 'Войти',
             attr: {
                 class: 'link',
-                href: '/auth.html',
+                href: '/',
             },
+            spa: true,
         }),
     ],
 
 });
-
-const regPage = new RegPage({
-    attr: {
-        class: 'app__reg-page',
-    },
-    form: pageForm,
-}, templateReg);
-
-const root = document.getElementById('app');
-if (root) {
-    root.innerHTML = '';
-    root.append(regPage.getContent());
-}

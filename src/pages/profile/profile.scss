@@ -99,6 +99,10 @@
           width: 100%;
           display: flex;
           justify-content: space-between;
+          font-size: 13px;
+          font-weight: 500;
+          line-height: 13px;
+          padding: 10px 0;
 
           &:last-child {
             border: transparent;
@@ -108,7 +112,7 @@
     }
   }
 
-  &__form {
+  &__form.profile-form {
     width: 100%;
     background-color: transparent;
     gap: 40px;
