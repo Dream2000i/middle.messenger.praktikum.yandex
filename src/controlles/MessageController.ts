@@ -23,25 +23,23 @@ class MessageController {
         CLOSE: 'close',
     };
 
-    private _userId: number | string | undefined;
+    private _userId?: number | string;
 
-    private _chatId: number | string | undefined;
+    private _chatId?: number | string;
 
     private _token: string;
 
-    private _ping: number | undefined;
+    private _ping?: number | ReturnType<typeof setTimeout>;
 
     private _offset: number = 0;
 
     private _allMessage: boolean = false;
-
 
     public events: Record<string, Function> | {} = {};
 
     public baseUrl: string = wssBaseUrl;
 
     public socket: WebSocket | null = null;
-
 
     constructor() {
         this._handleOpen = this._handleOpen.bind(this);
@@ -97,7 +95,6 @@ class MessageController {
         }
     }
 
-
     private _addEvents() {
         this.socket?.addEventListener(this.EVENTS.OPEN, this._handleOpen);
         this.socket?.addEventListener(this.EVENTS.MESSAGE, this._handleMassage);
@@ -112,16 +109,15 @@ class MessageController {
         this.socket?.removeEventListener(this.EVENTS.CLOSE, this._handleClose);
     }
 
-
     private async getToken(chatID: number) {
         try {
             const { status, response } = await ChatsApi.getToken(chatID);
             if (status === 200) {
-                return JSON.parse(response).token;
+                return JSON.parse(String(response)).token;
             } if (status === 500) {
                 router.go('/500');
             } else {
-                alert(JSON.parse(response).reason ?? 'Ошибочный запрос');
+                alert(JSON.parse(String(response)).reason ?? 'Ошибочный запрос');
             }
         } catch (e) {
             console.log(e);
@@ -206,6 +202,5 @@ class MessageController {
         }
     }
 }
-
 
 export default new MessageController();
