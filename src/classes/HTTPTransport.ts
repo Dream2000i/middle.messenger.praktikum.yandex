@@ -13,7 +13,7 @@ type TOptions = {
     method?: string,
     timeout?: number
 }
-type HTTPMethod = (url: string, options?: TOptions) => Promise<unknown>
+type HTTPMethod = (url: string, options?: TOptions) => Promise<any>
 type HTTPRequest = (url: string, options?: TOptions, timeout?: number) => Promise<unknown | void>
 
 // Самая простая версия. Реализовать штучку со всеми проверками им предстоит в конце спринта
@@ -36,17 +36,19 @@ export default class HTTPTransport {
         this.baseUrl = baseUrl;
     }
 
-    public get: HTTPMethod = (url = '', options = {}) => this.request(this.baseUrl + url, { ...options, method: METHODS.GET }, options.timeout);
+    public get: HTTPMethod = (url = '', options = {}) => this.request(this.baseUrl + url, { ...options, method: METHODS.GET });
 
-    public post: HTTPMethod = (url = '', options = {}) => this.request(this.baseUrl + url, { ...options, method: METHODS.POST }, options.timeout);
+    public post: HTTPMethod = (url = '', options = {}) => this.request(this.baseUrl + url, { ...options, method: METHODS.POST });
 
-    public put: HTTPMethod = (url = '', options = {}) => this.request(this.baseUrl + url, { ...options, method: METHODS.PUT }, options.timeout);
+    public put: HTTPMethod = (url = '', options = {}) => this.request(this.baseUrl + url, { ...options, method: METHODS.PUT });
 
-    public delete: HTTPMethod = (url = '', options = {}) => this.request(this.baseUrl + url, { ...options, method: METHODS.DELETE }, options.timeout);
+    public delete: HTTPMethod = (url = '', options = {}) => this.request(this.baseUrl + url, { ...options, method: METHODS.DELETE });
 
     // eslint-disable-next-line class-methods-use-this
-    public request: HTTPRequest = (url = '', options = {}, timeout = 5000): Promise<unknown | void> => {
-        const { headers = {}, method, data } = options;
+    public request: HTTPRequest = (url = '', options = {}): any => {
+        const {
+            headers = {}, method, data, timeout = 5000,
+        } = options;
 
         return new Promise((resolve, reject) => {
             if (!method) {

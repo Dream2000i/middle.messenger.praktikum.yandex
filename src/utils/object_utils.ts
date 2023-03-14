@@ -26,6 +26,9 @@ function isArrayOrObject(value: unknown): value is [] | PlainObject {
 }
 
 export function isEqual(lhs: PlainObject | string, rhs: PlainObject | string) {
+    if (typeof rhs === 'string' && typeof rhs === 'string') {
+        return lhs === rhs;
+    }
     if (Object.keys(lhs).length !== Object.keys(rhs).length) {
         return false;
     }
@@ -47,7 +50,6 @@ export function isEqual(lhs: PlainObject | string, rhs: PlainObject | string) {
     return true;
 }
 
-
 export function render(query: string, block: Block): void {
     const root = document.querySelector(query);
     if (root) {
@@ -56,7 +58,6 @@ export function render(query: string, block: Block): void {
         root.append(block.getContent());
     }
 }
-
 
 type Indexed<T = any> = {
     [key in string]: T;
