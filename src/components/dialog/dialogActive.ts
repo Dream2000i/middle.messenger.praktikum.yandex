@@ -7,7 +7,6 @@ import avatarDefault from '../../assets/icon/avatar_default.png';
 import { connect } from '../../utils/store';
 import { getParseDate } from '../../utils/date';
 import Store, { Chat, State } from '../../classes/Store';
-import { resourcesUrl } from '../../utils/config';
 
 class DialogActive extends Block {
     currentChat: any;
@@ -20,8 +19,6 @@ class DialogActive extends Block {
         };
         if (state?.chats) {
             props = {
-                // eslint-disable-next-line no-unsafe-optional-chaining
-                avatar: state?.currentChat?.chat?.avatar ? resourcesUrl + state?.currentChat?.chat?.avatar : avatarDefault,
                 currentChat: state?.currentChat?.chat,
                 messages: state.currentChat.messages,
                 scroll: state.currentChat.scroll,
@@ -42,11 +39,11 @@ class DialogActive extends Block {
     }
 
 
-    public scrollBottom(): void {
+    public scrollBottom():void {
         this.getContent().scrollBy(0, this.getContent().scrollHeight + 100);
     }
 
-    public scrollTop(): void {
+    public scrollTop():void {
         this.getContent().scrollBy(0, -document.body.scrollHeight);
     }
 
@@ -64,7 +61,7 @@ class DialogActive extends Block {
         };
 
 
-        this.prevProps = { ...this.props };
+        this._prevProps = { ...this.props };
         Object.assign(this.props, newProps);
     };
 

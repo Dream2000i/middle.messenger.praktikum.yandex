@@ -7,6 +7,7 @@ export enum StoreEvents {
 }
 export type Chat = Record<string, number | string | unknown>
 
+// export type State = Record<string, boolean | string | object | null>;
 export type State = {
     auth: boolean,
     user: null | Record<string, string | number>,
@@ -40,10 +41,6 @@ class Store extends EventBus {
 
     public getState(): State {
         return this.state;
-    }
-
-    public updateEmit(): void {
-        this.emit(StoreEvents.Updated);
     }
 
     public set(path: string, value: unknown): void {

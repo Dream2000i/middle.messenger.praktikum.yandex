@@ -6,8 +6,6 @@ https://www.figma.com/community/file/1196454541938995616
 
 https://celadon-meerkat-82a83d.netlify.app/
 
-# Проект в render.com:
-https://mid-messenger-praktikum-yandex.onrender.com/
 ## Описание
 
 Проект предсталяет собой практическую работу выполняемую в процессе обучения на курсе 
@@ -34,7 +32,7 @@ https://mid-messenger-praktikum-yandex.onrender.com/
 - В формах проекта добавлена валидация ( при отправке формы данные отображаются в console.log)
 - Добавлен HTTPTransport
 
-## Cпринт №3 реализовано:
+## На текущем этапе разработки (спринт №3) реализовано:
 - Добавлен роутинг (переход по сслыкам и кнопкам браузера)
 - Авторизация, регистрация на сервере
 - Редактирование профиля пользователя
@@ -45,15 +43,6 @@ https://mid-messenger-praktikum-yandex.onrender.com/
     - Удаление чатов
     - Получения списка чатов
     - Отправка/ Получение сообщений
-
-## На финальном спринте № 4 реализовано:
-Проект полностью завершен
-Переход с parcel на webpack
-Настроены loader
-Настроена Docker сборка проекта
-Настроены тесты классов Block, HTTPTransport, Router
-Настроен precommit (запуск eslint styleint и тесты)
-Проведен аудит проекта
 
 ## Установка проекта
 
@@ -81,34 +70,5 @@ npm run build
 Сборка проекта с наблюдением за файлами:
 
 ```bash
-npm run serve
-```
-
-Запуск тестов:
-
-```bash
-npm run test
-```
-Запуск eslint проверки:
-
-```bash
-npm run eslint
-```
-
-Запуск stylelint проверки:
-
-```bash
-npm run stylelint
-```
-
-Сборка docker image проекта:
-
-```bash
-npm run docker-build
-```
-
-Запуск docker image проекта:
-
-```bash
-npm run docker-start
+npm run dev
 ```

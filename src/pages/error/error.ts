@@ -15,9 +15,8 @@ class ErrorPage extends Block {
             },
             backlink: new Link({
                 text: 'Назад к чатам',
-                spa: true,
                 attr: {
-                    href: '/messenger',
+                    href: '/chat.html',
                     class: 'link',
                 },
             }),

@@ -51,6 +51,7 @@ function getValidData(self: Form, e: Event): [Block, string, string | undefined]
     return [component, value, getConfirmField(self, component)];
 }
 
+
 export function onFocus(self: Form, e: Event) {
     const [component, value = '', confirmValue] = getValidData(self, e);
     if (!component) return;
@@ -78,7 +79,7 @@ export function onInput(self: Form, e: Event): void {
         error,
     });
 }
-export function onSubmit(self: Form, e: Event, sendFunc: Function = (f: any) => f): void {
+export function onSubmit(self: Form, e: Event, sendFunc: Function = (f:any) => f): void {
     e.preventDefault();
     if (!self.children) return;
     let send = true;

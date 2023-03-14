@@ -1,14 +1,10 @@
 import HTTPTransport, { TOptionsData } from '../classes/HTTPTransport';
-import { baseUrl } from '../utils/config';
+import BaseAPI from './BaseApi';
 
-type Users = Record<string, string|number>;
+class UsersApi extends BaseAPI {
+    public http = new HTTPTransport(`${this.baseUrl}/user`);
 
-class UsersApi {
-    baseUrl: string = `${baseUrl}/user`;
-
-    public http = new HTTPTransport(this.baseUrl);
-
-    public changeData(data: TOptionsData): Promise<Users> {
+    public changeData(data: TOptionsData): Promise<any> {
         return this.http.put('/profile', {
             data,
             headers: {
@@ -18,13 +14,13 @@ class UsersApi {
     }
 
     // eslint-disable-next-line no-undef
-    public changeAvatar(data: FormData): Promise<Users> {
+    public changeAvatar(data: FormData): Promise<any> {
         return this.http.put('/profile/avatar', {
             data,
         });
     }
 
-    public changePassword(data: TOptionsData): Promise<Users> {
+    public changePassword(data: TOptionsData): Promise<any> {
         return this.http.put('/password', {
             data,
             headers: {
@@ -33,11 +29,11 @@ class UsersApi {
         });
     }
 
-    public getUser(id: number): Promise<Users> {
+    public getUser(id: number): Promise<any> {
         return this.http.get(`/user/${id}`);
     }
 
-    public searchUser(login: string): Promise<Users> {
+    public searchUser(login: string): Promise<any> {
         return this.http.post('/search', {
             data: { login },
             headers: {

@@ -4,26 +4,22 @@ import Block from './Block';
 import Route from './Route';
 import Store from './Store';
 
-// eslint-disable-next-line no-shadow
-export enum PathName {
-    AUTH = '/',
-    SIGNUP = '/sign-up',
-    SETTINGS = '/settings',
-    MESSENGER = '/messenger',
-    ERROR500 = '/error-500',
-    ERROR404 = '/error-404',
-}
+export const AUTH = '/';
+export const SIGNUP = '/sign-up';
+export const SETTINGS = '/settings';
+export const MESSENGER = '/messenger';
+export const ERROR500 = '/error-500';
+export const ERROR404 = '/error-404';
 
 class Router {
     public routes: Array<Route>;
 
+    // eslint-disable-next-line no-undef
     public history: History;
 
     public _currentRoute: Route | null;
 
     _rootQuery: string;
-
-    store: typeof Store | undefined;
 
     // eslint-disable-next-line no-use-before-define
     static __instance: Router;
@@ -33,7 +29,7 @@ class Router {
             // eslint-disable-next-line no-constructor-return
             return Router.__instance;
         }
-        this.store = Store;
+
         this.routes = [];
         this.history = window.history;
         this._currentRoute = null;
@@ -58,24 +54,26 @@ class Router {
     }
 
     _onRoute(pathname: string): void {
-        this._currentRoute = null;
-        if (this.store?.getState().auth) {
-            if (pathname === PathName.AUTH || pathname === PathName.SIGNUP) {
-                this._currentRoute = this.getRoute(PathName.MESSENGER) ?? null;
-                this.history.pushState({}, '', PathName.MESSENGER);
+        if (Store.getState().auth) {
+            if (pathname === AUTH || pathname === SIGNUP) {
+                pathname = MESSENGER;
+                this.history.pushState({}, '', MESSENGER);
             }
-        } else if (pathname !== PathName.AUTH && pathname !== PathName.SIGNUP) {
-            this._currentRoute = this.getRoute(PathName.AUTH) ?? null;
-            this.history.pushState({}, '', PathName.AUTH);
+        } else if (pathname !== AUTH && pathname !== SIGNUP) {
+            pathname = AUTH;
+            this.history.pushState({}, '', AUTH);
         }
 
-        if (!this._currentRoute) {
-            this._currentRoute = this.getRoute(pathname) ?? this.getRoute(PathName.ERROR404) ?? null;
-        }
-        if (!this._currentRoute) {
+        const route: Route | undefined = this.getRoute(pathname) ?? this.getRoute(ERROR404);
+        if (!route) {
             return;
         }
-        this._currentRoute?.render();
+        if (this._currentRoute && this._currentRoute !== route) {
+            this._currentRoute.leave();
+        }
+
+        this._currentRoute = route;
+        route.render();
     }
 
     go(pathname: string): void {
@@ -95,6 +93,5 @@ class Router {
         return this.routes.find((route) => route.match(pathname));
     }
 }
-
 
 export default new Router(rootBlockQuery);
