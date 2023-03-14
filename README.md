@@ -3,7 +3,6 @@
 https://www.figma.com/community/file/1196454541938995616
 
 # Проект в Netlify:
-
 https://celadon-meerkat-82a83d.netlify.app/
 
 ## Описание
@@ -12,7 +11,6 @@ https://celadon-meerkat-82a83d.netlify.app/
 "Мидл фронтенд-разработчик". 
 
 ## Cпринт №1 реализовано:
-
 * Настроена сборка с использованием Parcel
 * Настроена локальная раздача статики Express-сервером на 3000 порту
 * Подключен шаблонизатор Handlebars
